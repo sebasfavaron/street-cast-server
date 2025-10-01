@@ -1,7 +1,7 @@
 // Simple test script to verify API endpoints work
 // Run with: node test-api.js
 
-const BASE_URL = 'http://localhost:3050';
+const BASE_URL = `http://localhost:${process.env.PORT || 3050}`;
 
 async function testAPI() {
   console.log('🧪 Testing Street Cast Server API...\n');

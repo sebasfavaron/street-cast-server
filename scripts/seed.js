@@ -104,7 +104,11 @@ async function main() {
 
     console.log('\n🎉 Database seeded successfully!');
     console.log('\nYou can now:');
-    console.log('- Visit http://localhost:3050 to see the admin dashboard');
+    console.log(
+      `- Visit http://localhost:${
+        process.env.PORT || 3050
+      } to see the admin dashboard`
+    );
     console.log('- Test the manifest API: GET /api/manifest/dev-device-1');
     console.log('- View analytics: GET /api/analytics');
     console.log('- Open Prisma Studio: npm run db:studio');

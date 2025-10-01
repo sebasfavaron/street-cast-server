@@ -118,7 +118,7 @@ fi
 if ! grep -q "NEXT_PUBLIC_APP_URL=" .env.local; then
     print_error "NEXT_PUBLIC_APP_URL is not set in .env.local"
     print_error "This environment variable is REQUIRED for the application to work"
-    print_status "Please add NEXT_PUBLIC_APP_URL=http://localhost:3050 to your .env.local file"
+    print_status "Please add NEXT_PUBLIC_APP_URL=http://localhost:\${PORT:-3050} to your .env.local file"
     exit 1
 fi
 
@@ -129,6 +129,6 @@ echo "1. Update .env.local with your database connection string"
 echo "2. Run: npm run db:push (to set up database schema)"
 echo "3. Run: npm run db:seed (to add sample data - optional but recommended)"
 echo "4. Run: npm run dev (to start development server)"
-echo "5. Visit: http://localhost:3050"
+echo "5. Visit: http://localhost:\${PORT:-3050}"
 echo ""
 print_status "For detailed instructions, see DEVELOPMENT.md"
