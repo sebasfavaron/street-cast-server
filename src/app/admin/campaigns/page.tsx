@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { CampaignWithDetails, AdvertiserWithCampaigns } from '@/types';
 
+// Get base URL from environment variable
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3050';
+};
+
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<CampaignWithDetails[]>([]);
   const [advertisers, setAdvertisers] = useState<AdvertiserWithCampaigns[]>([]);
@@ -565,30 +573,62 @@ export default function CampaignsPage() {
                     Campaign Creatives: {campaign.name}
                   </h4>
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
-                    {campaign.creatives.map((creative) => (
-                      <div
-                        key={creative.id}
-                        className='bg-gray-50 p-3 rounded border'
-                      >
-                        <div className='flex items-center justify-between mb-2'>
-                          <span className='text-sm font-medium text-gray-900'>
-                            {creative.url.split('/').pop()}
-                          </span>
-                          <button
-                            onClick={() => handleDeleteCreative(creative.id)}
-                            className='text-red-600 hover:text-red-800 text-xs'
-                          >
-                            Delete
-                          </button>
-                        </div>
-                        <div className='text-xs text-gray-600 space-y-1'>
-                          <div>Duration: {creative.duration}s</div>
-                          <div className='truncate' title={creative.url}>
-                            URL: {creative.url}
+                    {campaign.creatives.map((creative) => {
+                      // Construct full URL using base URL
+                      const fullUrl = creative.url.startsWith('http')
+                        ? creative.url
+                        : `${getBaseUrl()}${
+                            creative.url.startsWith('/') ? '' : '/'
+                          }${creative.url}`;
+
+                      return (
+                        <div
+                          key={creative.id}
+                          className='bg-gray-50 p-3 rounded border hover:bg-gray-100 transition-colors'
+                        >
+                          <div className='flex items-center justify-between mb-2'>
+                            <span className='text-sm font-medium text-gray-900'>
+                              {creative.url.split('/').pop()}
+                            </span>
+                            <button
+                              onClick={() => handleDeleteCreative(creative.id)}
+                              className='text-red-600 hover:text-red-800 text-xs'
+                            >
+                              Delete
+                            </button>
+                          </div>
+                          <div className='text-xs text-gray-600 space-y-1'>
+                            <div>Duration: {creative.duration}s</div>
+                            <div className='truncate' title={fullUrl}>
+                              URL: {fullUrl}
+                            </div>
+                            <div className='pt-2'>
+                              <a
+                                href={fullUrl}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 transition-colors'
+                              >
+                                <svg
+                                  className='w-3 h-3 mr-1'
+                                  fill='none'
+                                  stroke='currentColor'
+                                  viewBox='0 0 24 24'
+                                >
+                                  <path
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    strokeWidth={2}
+                                    d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'
+                                  />
+                                </svg>
+                                Open Video
+                              </a>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
