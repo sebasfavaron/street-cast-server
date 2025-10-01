@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { AdvertiserCreateRequest } from '@/types';
 
 export async function GET() {
   try {
@@ -29,7 +30,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as AdvertiserCreateRequest;
     const { name, contactInfo } = body;
 
     if (!name) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { CampaignCreateRequest } from '@/types';
 
 export async function GET() {
   try {
@@ -36,7 +37,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as CampaignCreateRequest;
     const { name, advertiserId, startAt, endAt } = body;
 
     if (!name || !advertiserId || !startAt || !endAt) {
