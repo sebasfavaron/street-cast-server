@@ -39,8 +39,8 @@ export async function GET(
     });
 
     // Flatten all creatives from active campaigns
-    const creatives = campaigns.flatMap((campaign: any) =>
-      campaign.creatives.map((creative: any) => ({
+    const creatives = campaigns.flatMap((campaign) =>
+      campaign.creatives.map((creative) => ({
         id: creative.id,
         url: creative.url,
         duration: creative.duration,

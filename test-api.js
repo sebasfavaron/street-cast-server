@@ -84,7 +84,8 @@ async function testAPI() {
       }
     } catch (error) {
       console.log(
-        '⚠️  Impression recording failed (expected - no creatives exist yet)'
+        '⚠️  Impression recording failed (expected - no creatives exist yet) - ' +
+          error
       );
     }
 

@@ -364,7 +364,7 @@ export default function CampaignsPage() {
                     const endAt = new Date(campaign.endAt);
                     const isActive = now >= startAt && now <= endAt;
                     const isUpcoming = now < startAt;
-                    const isExpired = now > endAt;
+                    // const isExpired = now > endAt;
 
                     return (
                       <tr key={campaign.id} className='hover:bg-gray-50'>
@@ -387,7 +387,7 @@ export default function CampaignsPage() {
                               <div className='text-xs text-gray-500 space-y-1'>
                                 {campaign.creatives
                                   .slice(0, 2)
-                                  .map((creative, idx) => (
+                                  .map((creative) => (
                                     <div
                                       key={creative.id}
                                       className='flex items-center justify-between'
