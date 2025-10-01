@@ -20,37 +20,7 @@ A Next.js application for managing advertising campaigns on connected displays, 
 
 ## Setup Instructions
 
-### 1. Install Dependencies
-
-```bash
-npm install
-```
-
-### 2. Database Setup
-
-1. Set up a PostgreSQL database (local, Railway, or Supabase)
-2. Create a `.env` file in the root directory:
-
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/streetcastserver?schema=public"
-```
-
-3. Generate Prisma client and push schema to database:
-
-```bash
-npm run db:generate
-npm run db:push
-```
-
-### 3. Development
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3050](http://localhost:3050) to view the admin dashboard.
+For detailed setup and development instructions, please see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## API Endpoints
 
