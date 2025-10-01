@@ -2,17 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface Advertiser {
-  id: string;
-  name: string;
-  contactInfo?: string;
-  createdAt: string;
-  campaigns: { id: string; name: string }[];
-}
+import type { AdvertiserWithCampaigns } from '@/types';
 
 export default function AdvertisersPage() {
-  const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
+  const [advertisers, setAdvertisers] = useState<AdvertiserWithCampaigns[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -27,7 +20,7 @@ export default function AdvertisersPage() {
   const fetchAdvertisers = async () => {
     try {
       const response = await fetch('/api/advertisers');
-      const data = await response.json();
+      const data = (await response.json()) as AdvertiserWithCampaigns[];
       setAdvertisers(data);
     } catch (error) {
       console.error('Error fetching advertisers:', error);

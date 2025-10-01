@@ -2,18 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface Device {
-  id: string;
-  name: string;
-  location?: string;
-  lastSeen?: string;
-  createdAt: string;
-  impressions: { id: string }[];
-}
+import type { DeviceWithImpressions } from '@/types';
 
 export default function DevicesPage() {
-  const [devices, setDevices] = useState<Device[]>([]);
+  const [devices, setDevices] = useState<DeviceWithImpressions[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,7 +20,7 @@ export default function DevicesPage() {
   const fetchDevices = async () => {
     try {
       const response = await fetch('/api/devices');
-      const data = await response.json();
+      const data = (await response.json()) as DeviceWithImpressions[];
       setDevices(data);
     } catch (error) {
       console.error('Error fetching devices:', error);
@@ -58,7 +50,7 @@ export default function DevicesPage() {
     }
   };
 
-  const getDeviceStatus = (lastSeen?: string) => {
+  const getDeviceStatus = (lastSeen?: Date | null) => {
     if (!lastSeen)
       return { status: 'offline', color: 'bg-red-100 text-red-800' };
 

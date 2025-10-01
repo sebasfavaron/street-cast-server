@@ -32,7 +32,14 @@ export async function GET() {
     });
 
     // Group by campaign
-    const campaignGroups = new Map();
+    const campaignGroups = new Map<
+      string,
+      {
+        campaignName: string;
+        advertiserName: string;
+        count: number;
+      }
+    >();
     impressions.forEach((impression) => {
       const key = impression.creative.campaign.id;
       if (!campaignGroups.has(key)) {
@@ -42,12 +49,22 @@ export async function GET() {
           count: 0,
         });
       }
-      campaignGroups.get(key).count++;
+      const group = campaignGroups.get(key);
+      if (group) {
+        group.count++;
+      }
     });
     const impressionsByCampaign = Array.from(campaignGroups.values());
 
     // Group by device
-    const deviceGroups = new Map();
+    const deviceGroups = new Map<
+      string,
+      {
+        deviceName: string;
+        location: string | null;
+        count: number;
+      }
+    >();
     impressions.forEach((impression) => {
       const key = impression.deviceId;
       if (!deviceGroups.has(key)) {
@@ -57,7 +74,10 @@ export async function GET() {
           count: 0,
         });
       }
-      deviceGroups.get(key).count++;
+      const group = deviceGroups.get(key);
+      if (group) {
+        group.count++;
+      }
     });
     const impressionsByDevice = Array.from(deviceGroups.values());
 

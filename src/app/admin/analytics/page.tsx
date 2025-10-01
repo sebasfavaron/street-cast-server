@@ -2,43 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface Impression {
-  id: string;
-  shownAt: string;
-  device: {
-    id: string;
-    name: string;
-    location?: string;
-  };
-  creative: {
-    id: string;
-    url: string;
-    duration: number;
-    campaign: {
-      id: string;
-      name: string;
-      advertiser: {
-        name: string;
-      };
-    };
-  };
-}
-
-interface AnalyticsData {
-  totalImpressions: number;
-  impressionsByCampaign: Array<{
-    campaignName: string;
-    advertiserName: string;
-    count: number;
-  }>;
-  impressionsByDevice: Array<{
-    deviceName: string;
-    location?: string;
-    count: number;
-  }>;
-  recentImpressions: Impression[];
-}
+import type { AnalyticsData } from '@/types';
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -51,7 +15,7 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       const response = await fetch('/api/analytics');
-      const analyticsData = await response.json();
+      const analyticsData = (await response.json()) as AnalyticsData;
       setData(analyticsData);
     } catch (error) {
       console.error('Error fetching analytics:', error);

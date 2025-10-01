@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import type { CreativeCreateRequest } from '@/types';
 
 export async function GET() {
   try {
@@ -33,7 +34,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as CreativeCreateRequest;
     const { campaignId, url, duration } = body;
 
     if (!campaignId || !url || !duration) {
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
       data: {
         campaignId,
         url,
-        duration: parseInt(duration),
+        duration: typeof duration === 'string' ? parseInt(duration) : duration,
       },
       include: {
         campaign: {

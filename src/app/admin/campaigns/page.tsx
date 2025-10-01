@@ -2,32 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface Advertiser {
-  id: string;
-  name: string;
-}
-
-interface Creative {
-  id: string;
-  url: string;
-  duration: number;
-  campaignId: string;
-}
-
-interface Campaign {
-  id: string;
-  name: string;
-  startAt: string;
-  endAt: string;
-  advertiser: Advertiser;
-  creatives: Creative[];
-  createdAt: string;
-}
+import type { CampaignWithDetails, AdvertiserWithCampaigns } from '@/types';
 
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignWithDetails[]>([]);
+  const [advertisers, setAdvertisers] = useState<AdvertiserWithCampaigns[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showCreativeForm, setShowCreativeForm] = useState(false);
@@ -54,8 +33,10 @@ export default function CampaignsPage() {
         fetch('/api/advertisers'),
       ]);
 
-      const campaignsData = await campaignsRes.json();
-      const advertisersData = await advertisersRes.json();
+      const campaignsData =
+        (await campaignsRes.json()) as CampaignWithDetails[];
+      const advertisersData =
+        (await advertisersRes.json()) as AdvertiserWithCampaigns[];
 
       setCampaigns(campaignsData);
       setAdvertisers(advertisersData);
