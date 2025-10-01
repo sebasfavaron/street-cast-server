@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Advertiser {
+  id          String     @id @default(cuid())
+  name        String
+  contactInfo String?
+  campaigns   Campaign[]
+  createdAt   DateTime   @default(now())
+}
+
+model Device {
+  id          String       @id @default(cuid())
+  name        String
+  location    String?
+  manifestUrl String? // optional, if you want to serve by unique URL
+  lastSeen    DateTime?
+  impressions Impression[]
+  createdAt   DateTime     @default(now())
+}
+
+model Campaign {
+  id           String     @id @default(cuid())
+  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
+  advertiserId String
+  name         String
+  startAt      DateTime
+  endAt        DateTime
+  creatives    Creative[]
+  createdAt    DateTime   @default(now())
+}
+
+model Creative {
+  id          String       @id @default(cuid())
+  campaign    Campaign     @relation(fields: [campaignId], references: [id])
+  campaignId  String
+  url         String // MP4 location (S3, public/, etc.)
+  duration    Int // segundos
+  impressions Impression[]
+  createdAt   DateTime     @default(now())
+}
+
+model Impression {
+  id         String   @id @default(cuid())
+  device     Device   @relation(fields: [deviceId], references: [id])
+  deviceId   String
+  creative   Creative @relation(fields: [creativeId], references: [id])
+  creativeId String
+  shownAt    DateTime @default(now())
+}
