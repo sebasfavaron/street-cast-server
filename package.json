@@ -7,9 +7,12 @@
     "build": "prisma generate && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "db:seed": "node scripts/seed.js",
+    "setup": "chmod +x scripts/setup-dev.sh && ./scripts/setup-dev.sh",
     "tsc": "tsc",
     "tsc:watch": "tsc --watch",
     "postinstall": "prisma generate"
