@@ -110,7 +110,21 @@ The application will be available at [http://localhost:3050](http://localhost:30
 ## Development Scripts
 
 - `npm run setup` - **Automated development environment setup**
-- `npm run dev` - Start development server with Turbopack on port 3050
+- `npm run dev` - Start development server with Turbopack on port 3050 (or PORT env var)
+
+### Custom Port
+
+To run on a different port, set the `PORT` environment variable:
+
+```bash
+# Using environment variable
+PORT=4000 npm run dev
+
+# Or add to .env file
+echo "PORT=4000" >> .env
+npm run dev
+```
+
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
