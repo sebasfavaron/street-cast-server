@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Get base URL for constructing full creative URLs
+const getBaseUrl = (request: NextRequest) => {
+  const protocol = request.headers.get('x-forwarded-proto') || 'http';
+  const host = request.headers.get('host') || 'localhost:3050';
+  return `${protocol}://${host}`;
+};
+
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ deviceId: string }> }
 ) {
   try {
     const { deviceId } = await params;
+    const baseUrl = getBaseUrl(request);
 
     // Find the device
     const device = await prisma.device.findUnique({
@@ -40,13 +48,22 @@ export async function GET(
 
     // Flatten all creatives from active campaigns
     const creatives = campaigns.flatMap((campaign) =>
-      campaign.creatives.map((creative) => ({
-        id: creative.id,
-        url: creative.url,
-        duration: creative.duration,
-        campaignId: campaign.id,
-        campaignName: campaign.name,
-      }))
+      campaign.creatives.map((creative) => {
+        // Construct full URL using base URL
+        const fullUrl = creative.url.startsWith('http')
+          ? creative.url
+          : `${baseUrl}${creative.url.startsWith('/') ? '' : '/'}${
+              creative.url
+            }`;
+
+        return {
+          id: creative.id,
+          url: fullUrl,
+          duration: creative.duration,
+          campaignId: campaign.id,
+          campaignName: campaign.name,
+        };
+      })
     );
 
     const manifest = {
