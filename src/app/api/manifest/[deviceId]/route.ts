@@ -4,7 +4,14 @@ import { prisma } from '@/lib/prisma';
 // Get base URL for constructing full creative URLs
 const getBaseUrl = (request: NextRequest) => {
   const protocol = request.headers.get('x-forwarded-proto') || 'http';
-  const host = request.headers.get('host') || 'localhost:3050';
+  const host = request.headers.get('host');
+
+  if (!host) {
+    throw new Error(
+      'Host header not found in request. This is required for proper URL construction.'
+    );
+  }
+
   return `${protocol}://${host}`;
 };
 

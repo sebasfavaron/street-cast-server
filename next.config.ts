@@ -1,9 +1,15 @@
 import type { NextConfig } from 'next';
 
+// Validate required environment variables
+if (!process.env.NEXT_PUBLIC_APP_URL) {
+  throw new Error(
+    'NEXT_PUBLIC_APP_URL environment variable is required but not set.'
+  );
+}
+
 const nextConfig: NextConfig = {
   env: {
-    NEXT_PUBLIC_APP_URL:
-      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3050',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
   // Enable static optimization for better performance
   output: 'standalone',
