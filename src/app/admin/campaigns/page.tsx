@@ -145,6 +145,63 @@ export default function CampaignsPage() {
           </div>
         </div>
 
+        {/* Campaign Status Summary */}
+        {campaigns.length > 0 && (
+          <div className='mb-6 grid grid-cols-1 md:grid-cols-4 gap-4'>
+            {(() => {
+              const now = new Date();
+              const activeCount = campaigns.filter((c) => {
+                const startAt = new Date(c.startAt);
+                const endAt = new Date(c.endAt);
+                return now >= startAt && now <= endAt;
+              }).length;
+              const upcomingCount = campaigns.filter((c) => {
+                const startAt = new Date(c.startAt);
+                return now < startAt;
+              }).length;
+              const expiredCount = campaigns.filter((c) => {
+                const endAt = new Date(c.endAt);
+                return now > endAt;
+              }).length;
+
+              return (
+                <>
+                  <div className='bg-green-50 p-4 rounded-lg'>
+                    <div className='text-2xl font-bold text-green-600'>
+                      {activeCount}
+                    </div>
+                    <div className='text-sm text-green-700'>
+                      Active Campaigns
+                    </div>
+                  </div>
+                  <div className='bg-yellow-50 p-4 rounded-lg'>
+                    <div className='text-2xl font-bold text-yellow-600'>
+                      {upcomingCount}
+                    </div>
+                    <div className='text-sm text-yellow-700'>
+                      Upcoming Campaigns
+                    </div>
+                  </div>
+                  <div className='bg-red-50 p-4 rounded-lg'>
+                    <div className='text-2xl font-bold text-red-600'>
+                      {expiredCount}
+                    </div>
+                    <div className='text-sm text-red-700'>
+                      Expired Campaigns
+                    </div>
+                  </div>
+                  <div className='bg-gray-50 p-4 rounded-lg'>
+                    <div className='text-2xl font-bold text-gray-600'>
+                      {campaigns.length}
+                    </div>
+                    <div className='text-sm text-gray-700'>Total Campaigns</div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
+
         {showForm && (
           <div className='mb-8 bg-white p-6 rounded-lg shadow'>
             <h2 className='text-xl font-semibold mb-4'>Create New Campaign</h2>
@@ -364,12 +421,24 @@ export default function CampaignsPage() {
                     const endAt = new Date(campaign.endAt);
                     const isActive = now >= startAt && now <= endAt;
                     const isUpcoming = now < startAt;
-                    // const isExpired = now > endAt;
+                    const isExpired = now > endAt;
 
                     return (
-                      <tr key={campaign.id} className='hover:bg-gray-50'>
+                      <tr
+                        key={campaign.id}
+                        className={`hover:bg-gray-50 ${
+                          isExpired ? 'opacity-60' : ''
+                        }`}
+                      >
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
-                          {campaign.name}
+                          <span className={isExpired ? 'line-through' : ''}>
+                            {campaign.name}
+                          </span>
+                          {isExpired && (
+                            <span className='ml-2 text-xs text-red-500'>
+                              (Expired)
+                            </span>
+                          )}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-700'>
                           {campaign.advertiser.name}
@@ -419,6 +488,8 @@ export default function CampaignsPage() {
                                 ? 'bg-green-100 text-green-800'
                                 : isUpcoming
                                 ? 'bg-yellow-100 text-yellow-800'
+                                : isExpired
+                                ? 'bg-red-100 text-red-800'
                                 : 'bg-gray-100 text-gray-800'
                             }`}
                           >
@@ -426,14 +497,26 @@ export default function CampaignsPage() {
                               ? 'Active'
                               : isUpcoming
                               ? 'Upcoming'
-                              : 'Expired'}
+                              : isExpired
+                              ? 'Expired'
+                              : 'Unknown'}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                           <div className='flex space-x-2'>
                             <button
                               onClick={() => openCreativeForm(campaign.id)}
-                              className='text-indigo-600 hover:text-indigo-900'
+                              disabled={isExpired}
+                              className={`${
+                                isExpired
+                                  ? 'text-gray-400 cursor-not-allowed'
+                                  : 'text-indigo-600 hover:text-indigo-900'
+                              }`}
+                              title={
+                                isExpired
+                                  ? 'Cannot add creatives to expired campaigns'
+                                  : 'Add Creative'
+                              }
                             >
                               Add Creative
                             </button>
