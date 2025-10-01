@@ -9,7 +9,15 @@ const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3050';
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl) {
+    throw new Error(
+      'NEXT_PUBLIC_APP_URL environment variable is required but not set.'
+    );
+  }
+
+  return appUrl;
 };
 
 export default function CampaignsPage() {

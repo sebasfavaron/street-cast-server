@@ -114,6 +114,14 @@ if grep -q "postgresql://username:password@localhost" .env.local; then
     print_status "  - Neon: Get from neon.tech dashboard"
 fi
 
+# Check if NEXT_PUBLIC_APP_URL is configured
+if ! grep -q "NEXT_PUBLIC_APP_URL=" .env.local; then
+    print_error "NEXT_PUBLIC_APP_URL is not set in .env.local"
+    print_error "This environment variable is REQUIRED for the application to work"
+    print_status "Please add NEXT_PUBLIC_APP_URL=http://localhost:3050 to your .env.local file"
+    exit 1
+fi
+
 print_success "Development environment setup complete!"
 echo ""
 print_status "Next steps:"

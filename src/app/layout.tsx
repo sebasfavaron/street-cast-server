@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('http://localhost:3050'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
   alternates: {
     canonical: '/',
   },
@@ -101,7 +101,7 @@ export default function RootLayout({
     name: 'Street Cast Server',
     description:
       'Digital Advertising Management Platform for Connected Displays',
-    url: 'http://localhost:3050',
+    url: process.env.NEXT_PUBLIC_APP_URL!,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     offers: {
