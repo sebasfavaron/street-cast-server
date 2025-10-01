@@ -8,13 +8,20 @@ interface Advertiser {
   name: string;
 }
 
+interface Creative {
+  id: string;
+  url: string;
+  duration: number;
+  campaignId: string;
+}
+
 interface Campaign {
   id: string;
   name: string;
   startAt: string;
   endAt: string;
   advertiser: Advertiser;
-  creatives: { id: string; url: string; duration: number }[];
+  creatives: Creative[];
   createdAt: string;
 }
 
@@ -23,11 +30,17 @@ export default function CampaignsPage() {
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showCreativeForm, setShowCreativeForm] = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     advertiserId: '',
     startAt: '',
     endAt: '',
+  });
+  const [creativeFormData, setCreativeFormData] = useState({
+    url: '',
+    duration: '',
   });
 
   useEffect(() => {
@@ -72,6 +85,52 @@ export default function CampaignsPage() {
     } catch (error) {
       console.error('Error creating campaign:', error);
     }
+  };
+
+  const handleCreativeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/creatives', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          campaignId: selectedCampaignId,
+          ...creativeFormData,
+        }),
+      });
+
+      if (response.ok) {
+        setCreativeFormData({ url: '', duration: '' });
+        setShowCreativeForm(false);
+        setSelectedCampaignId('');
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Error creating creative:', error);
+    }
+  };
+
+  const handleDeleteCreative = async (creativeId: string) => {
+    if (!confirm('Are you sure you want to delete this creative?')) return;
+
+    try {
+      const response = await fetch(`/api/creatives/${creativeId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Error deleting creative:', error);
+    }
+  };
+
+  const openCreativeForm = (campaignId: string) => {
+    setSelectedCampaignId(campaignId);
+    setShowCreativeForm(true);
   };
 
   if (loading) {
@@ -208,6 +267,83 @@ export default function CampaignsPage() {
           </div>
         )}
 
+        {showCreativeForm && (
+          <div className='mb-8 bg-white p-6 rounded-lg shadow'>
+            <h2 className='text-xl font-semibold mb-4'>
+              Add Creative to Campaign
+            </h2>
+            <form onSubmit={handleCreativeSubmit} className='space-y-4'>
+              <div>
+                <label
+                  htmlFor='url'
+                  className='block text-sm font-medium text-gray-800'
+                >
+                  Video URL
+                </label>
+                <input
+                  type='url'
+                  id='url'
+                  required
+                  value={creativeFormData.url}
+                  onChange={(e) =>
+                    setCreativeFormData({
+                      ...creativeFormData,
+                      url: e.target.value,
+                    })
+                  }
+                  className='mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-600'
+                  placeholder='https://yourserver.com/videos/ad1.mp4'
+                />
+                <p className='mt-1 text-sm text-gray-600'>
+                  Place MP4 files in /public/videos/ and use:
+                  /videos/filename.mp4
+                </p>
+              </div>
+              <div>
+                <label
+                  htmlFor='duration'
+                  className='block text-sm font-medium text-gray-800'
+                >
+                  Duration (seconds)
+                </label>
+                <input
+                  type='number'
+                  id='duration'
+                  required
+                  min='1'
+                  value={creativeFormData.duration}
+                  onChange={(e) =>
+                    setCreativeFormData({
+                      ...creativeFormData,
+                      duration: e.target.value,
+                    })
+                  }
+                  className='mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-600'
+                  placeholder='30'
+                />
+              </div>
+              <div className='flex gap-2'>
+                <button
+                  type='submit'
+                  className='bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors'
+                >
+                  Add Creative
+                </button>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setShowCreativeForm(false);
+                    setSelectedCampaignId('');
+                  }}
+                  className='bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors'
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <div className='bg-white shadow rounded-lg'>
           {campaigns.length === 0 ? (
             <div className='text-center py-12'>
@@ -235,6 +371,9 @@ export default function CampaignsPage() {
                     <th className='px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider'>
                       Status
                     </th>
+                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider'>
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className='bg-white divide-y divide-gray-200'>
@@ -259,7 +398,38 @@ export default function CampaignsPage() {
                           {endAt.toLocaleDateString()}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-700'>
-                          {campaign.creatives.length} videos
+                          <div className='space-y-1'>
+                            <div className='font-medium'>
+                              {campaign.creatives.length} videos
+                            </div>
+                            {campaign.creatives.length > 0 && (
+                              <div className='text-xs text-gray-500 space-y-1'>
+                                {campaign.creatives
+                                  .slice(0, 2)
+                                  .map((creative, idx) => (
+                                    <div
+                                      key={creative.id}
+                                      className='flex items-center justify-between'
+                                    >
+                                      <span
+                                        className='truncate max-w-32'
+                                        title={creative.url}
+                                      >
+                                        {creative.url.split('/').pop()}
+                                      </span>
+                                      <span className='text-gray-400'>
+                                        {creative.duration}s
+                                      </span>
+                                    </div>
+                                  ))}
+                                {campaign.creatives.length > 2 && (
+                                  <div className='text-gray-400'>
+                                    +{campaign.creatives.length - 2} more
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <span
@@ -278,6 +448,35 @@ export default function CampaignsPage() {
                               : 'Expired'}
                           </span>
                         </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                          <div className='flex space-x-2'>
+                            <button
+                              onClick={() => openCreativeForm(campaign.id)}
+                              className='text-indigo-600 hover:text-indigo-900'
+                            >
+                              Add Creative
+                            </button>
+                            {campaign.creatives.length > 0 && (
+                              <button
+                                onClick={() => {
+                                  // Toggle creative details view
+                                  const details = document.getElementById(
+                                    `creatives-${campaign.id}`
+                                  );
+                                  if (details) {
+                                    details.style.display =
+                                      details.style.display === 'none'
+                                        ? 'block'
+                                        : 'none';
+                                  }
+                                }}
+                                className='text-gray-600 hover:text-gray-900'
+                              >
+                                View Creatives
+                              </button>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
@@ -286,6 +485,51 @@ export default function CampaignsPage() {
             </div>
           )}
         </div>
+
+        {/* Creative Details Modal/Expanded View */}
+        {campaigns.map(
+          (campaign) =>
+            campaign.creatives.length > 0 && (
+              <div
+                key={`creatives-${campaign.id}`}
+                id={`creatives-${campaign.id}`}
+                style={{ display: 'none' }}
+                className='mt-4 bg-white p-6 rounded-lg shadow'
+              >
+                <div className='space-y-3'>
+                  <h4 className='font-medium text-gray-900'>
+                    Campaign Creatives: {campaign.name}
+                  </h4>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
+                    {campaign.creatives.map((creative) => (
+                      <div
+                        key={creative.id}
+                        className='bg-gray-50 p-3 rounded border'
+                      >
+                        <div className='flex items-center justify-between mb-2'>
+                          <span className='text-sm font-medium text-gray-900'>
+                            {creative.url.split('/').pop()}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteCreative(creative.id)}
+                            className='text-red-600 hover:text-red-800 text-xs'
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        <div className='text-xs text-gray-600 space-y-1'>
+                          <div>Duration: {creative.duration}s</div>
+                          <div className='truncate' title={creative.url}>
+                            URL: {creative.url}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+        )}
 
         <div className='mt-8'>
           <Link
