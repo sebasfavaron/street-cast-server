@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../../../../../lib/prisma';
+import { applyCors, createCorsPreflightResponse } from '../../../../lib/cors';
 
 // Get base URL for constructing full creative URLs
 const getBaseUrl = (request: NextRequest) => {
@@ -29,7 +30,10 @@ export async function GET(
     });
 
     if (!device) {
-      return NextResponse.json({ error: 'Device not found' }, { status: 404 });
+      return applyCors(
+        NextResponse.json({ error: 'Device not found' }, { status: 404 }),
+        request
+      );
     }
 
     // Update last seen timestamp
@@ -80,12 +84,19 @@ export async function GET(
       generatedAt: new Date().toISOString(),
     };
 
-    return NextResponse.json(manifest);
+    return applyCors(NextResponse.json(manifest), request);
   } catch (error) {
     console.error('Error generating manifest:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    return applyCors(
+      NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      ),
+      request
     );
   }
+}
+
+export function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
 }

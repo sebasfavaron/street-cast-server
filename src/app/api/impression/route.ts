@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../../../../lib/prisma';
 import type { ImpressionCreateRequest } from '@/types';
+import { applyCors, createCorsPreflightResponse } from '../../../lib/cors';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,9 +9,12 @@ export async function POST(request: NextRequest) {
     const { deviceId, creativeId } = body;
 
     if (!deviceId || !creativeId) {
-      return NextResponse.json(
-        { error: 'deviceId and creativeId are required' },
-        { status: 400 }
+      return applyCors(
+        NextResponse.json(
+          { error: 'deviceId and creativeId are required' },
+          { status: 400 }
+        ),
+        request
       );
     }
 
@@ -20,7 +24,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!device) {
-      return NextResponse.json({ error: 'Device not found' }, { status: 404 });
+      return applyCors(
+        NextResponse.json({ error: 'Device not found' }, { status: 404 }),
+        request
+      );
     }
 
     // Verify creative exists
@@ -29,9 +36,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!creative) {
-      return NextResponse.json(
-        { error: 'Creative not found' },
-        { status: 404 }
+      return applyCors(
+        NextResponse.json(
+          { error: 'Creative not found' },
+          { status: 404 }
+        ),
+        request
       );
     }
 
@@ -44,15 +54,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      impressionId: impression.id,
-    });
+    return applyCors(
+      NextResponse.json({
+        success: true,
+        impressionId: impression.id,
+      }),
+      request
+    );
   } catch (error) {
     console.error('Error recording impression:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    return applyCors(
+      NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      ),
+      request
     );
   }
+}
+
+export function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
 }

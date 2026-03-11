@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { resolveAppUrl } from '../lib/app-url';
 import './globals.css';
 
 const geistSans = Geist({
@@ -11,6 +12,8 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
+
+const appUrl = resolveAppUrl();
 
 export const metadata: Metadata = {
   title: 'Street Cast Server - Digital Advertising Management',
@@ -33,7 +36,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
+  metadataBase: new URL(appUrl),
   alternates: {
     canonical: '/',
   },
@@ -101,7 +104,7 @@ export default function RootLayout({
     name: 'Street Cast Server',
     description:
       'Digital Advertising Management Platform for Connected Displays',
-    url: process.env.NEXT_PUBLIC_APP_URL!,
+    url: appUrl,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     offers: {
