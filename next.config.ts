@@ -1,15 +1,11 @@
 import type { NextConfig } from 'next';
+import { resolveAppUrl } from './src/lib/app-url';
 
-// Validate required environment variables
-if (!process.env.NEXT_PUBLIC_APP_URL) {
-  throw new Error(
-    'NEXT_PUBLIC_APP_URL environment variable is required but not set.'
-  );
-}
+const appUrl = resolveAppUrl();
 
 const nextConfig: NextConfig = {
   env: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_APP_URL: appUrl,
   },
   // Enable static optimization for better performance
   output: 'standalone',
@@ -18,11 +14,32 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST,OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+      },
+      {
         source: '/videos/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
         ],
       },
