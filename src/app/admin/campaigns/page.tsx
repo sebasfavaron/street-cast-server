@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { CampaignWithDetails, AdvertiserWithCampaigns } from '@/types';
+import { resolveAppUrl } from '../../../lib/app-url';
 
 // Get base URL from environment variable
 const getBaseUrl = () => {
@@ -10,14 +11,7 @@ const getBaseUrl = () => {
     return window.location.origin;
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (!appUrl) {
-    throw new Error(
-      'NEXT_PUBLIC_APP_URL environment variable is required but not set.'
-    );
-  }
-
-  return appUrl;
+  return resolveAppUrl();
 };
 
 export default function CampaignsPage() {
