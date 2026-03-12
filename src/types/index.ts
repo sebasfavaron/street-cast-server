@@ -22,32 +22,46 @@ export type CampaignWithDetails = Prisma.CampaignGetPayload<{
   };
 }>;
 
-export type AdvertiserWithCampaigns = Prisma.AdvertiserGetPayload<{
-  include: {
-    campaigns: { select: { id: true; name: true } };
-  };
-}>;
+export type AdvertiserWithCampaigns = {
+  id: string;
+  name: string;
+  contactInfo: string | null;
+  createdAt: string;
+  campaigns: { id: string; name: string }[];
+};
 
-export type DeviceWithImpressions = Prisma.DeviceGetPayload<{
-  include: {
-    impressions: { select: { id: true } };
-  };
-}>;
+export type DeviceWithImpressions = {
+  id: string;
+  name: string;
+  location: string | null;
+  createdAt: string;
+  lastSeen: string | null;
+  impressions: { id: string }[];
+};
 
-export type ImpressionWithDetails = Prisma.ImpressionGetPayload<{
-  include: {
-    device: { select: { id: true; name: true; location: true } };
-    creative: {
-      include: {
-        campaign: {
-          include: {
-            advertiser: { select: { name: true } };
-          };
-        };
-      };
+export type ImpressionWithDetails = {
+  id: string;
+  deviceId: string;
+  creativeId: string;
+  shownAt: string;
+  device: { id: string; name: string; location: string | null };
+  creative: {
+    id: string;
+    createdAt: string;
+    campaignId: string;
+    url: string;
+    duration: number;
+    campaign: {
+      id: string;
+      name: string;
+      createdAt: string;
+      advertiserId: string;
+      startAt: string;
+      endAt: string;
+      advertiser: { name: string };
     };
   };
-}>;
+};
 
 // Analytics response type
 export type AnalyticsData = {
@@ -59,7 +73,7 @@ export type AnalyticsData = {
   }>;
   impressionsByDevice: Array<{
     deviceName: string;
-    location?: string;
+    location: string | null;
     count: number;
   }>;
   recentImpressions: ImpressionWithDetails[];
