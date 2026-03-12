@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { router, procedure } from '../trpc';
+import type { AnalyticsData } from '@/types';
 
-export async function GET() {
-  try {
+export const analyticsRouter = router({
+  getData: procedure.query(async ({ ctx }) => {
     // Get total impressions count
-    const totalImpressions = await prisma.impression.count();
+    const totalImpressions = await ctx.prisma.impression.count();
 
     // Get impressions with campaign and device data
-    const impressions = await prisma.impression.findMany({
+    const impressions = await ctx.prisma.impression.findMany({
       include: {
         creative: {
           include: {
@@ -82,7 +82,7 @@ export async function GET() {
     const impressionsByDevice = Array.from(deviceGroups.values());
 
     // Get recent impressions (last 50)
-    const recentImpressions = await prisma.impression.findMany({
+    const recentImpressions = await ctx.prisma.impression.findMany({
       take: 50,
       orderBy: {
         shownAt: 'desc',
@@ -111,21 +111,26 @@ export async function GET() {
       },
     });
 
-    // Data is already transformed above
-
-    const analyticsData = {
+    const analyticsData: AnalyticsData = {
       totalImpressions,
       impressionsByCampaign,
       impressionsByDevice,
-      recentImpressions,
+      recentImpressions: recentImpressions.map((impression) => ({
+        ...impression,
+        shownAt: impression.shownAt.toISOString(),
+        creative: {
+          ...impression.creative,
+          createdAt: impression.creative.createdAt.toISOString(),
+          campaign: {
+            ...impression.creative.campaign,
+            createdAt: impression.creative.campaign.createdAt.toISOString(),
+            startAt: impression.creative.campaign.startAt.toISOString(),
+            endAt: impression.creative.campaign.endAt.toISOString(),
+          },
+        },
+      })),
     };
 
-    return NextResponse.json(analyticsData);
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
+    return analyticsData;
+  }),
+});
