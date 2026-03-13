@@ -80,10 +80,14 @@ export const creativesRouter = router({
         throw new Error('Creative not found');
       }
 
-      // Delete the creative
-      await ctx.prisma.creative.delete({
-        where: { id: input.id },
-      });
+      await ctx.prisma.$transaction([
+        ctx.prisma.impression.deleteMany({
+          where: { creativeId: input.id },
+        }),
+        ctx.prisma.creative.delete({
+          where: { id: input.id },
+        }),
+      ]);
 
       return { success: true };
     }),

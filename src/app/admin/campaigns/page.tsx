@@ -182,12 +182,12 @@ export default function CampaignsPage() {
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                           <CreativeForm campaignId={campaign.id} />
                           <a
-                            href={`${getBaseUrl()}/api/manifest/${campaign.id}`}
+                            href={`${getBaseUrl()}/api/campaigns/${campaign.id}/manifest`}
                             target='_blank'
                             rel='noopener noreferrer'
                             className='text-green-600 hover:text-green-500 ml-3'
                           >
-                            View Manifest
+                            Preview Manifest
                           </a>
                         </td>
                       </tr>
