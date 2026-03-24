@@ -30,10 +30,9 @@ export async function GET(
     });
 
     if (!device) {
-      return applyCors(
-        NextResponse.json({ error: 'Device not found' }, { status: 404 }),
-        request
-      );
+      const response = NextResponse.json({ error: 'Device not found' }, { status: 404 });
+      response.headers.set('Cache-Control', 'no-store');
+      return applyCors(response, request);
     }
 
     // Update last seen timestamp
@@ -84,16 +83,17 @@ export async function GET(
       generatedAt: new Date().toISOString(),
     };
 
-    return applyCors(NextResponse.json(manifest), request);
+    const response = NextResponse.json(manifest);
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    return applyCors(response, request);
   } catch (error) {
     console.error('Error generating manifest:', error);
-    return applyCors(
-      NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
-      ),
-      request
+    const response = NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
     );
+    response.headers.set('Cache-Control', 'no-store');
+    return applyCors(response, request);
   }
 }
 
