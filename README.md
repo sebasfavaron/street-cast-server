@@ -1,3 +1,5 @@
+> **Superseded (2026-10-23). No work is planned here.** Ad campaigns, screens and playlists live in [`sebasfavaron/ballbox`](https://github.com/sebasfavaron/ballbox) (admin and API). TV playback is [`ballbox-signage-player-android`](https://github.com/sebasfavaron/ballbox-signage-player-android).
+
 # Street Cast Server - Phase 1
 
 A Next.js application for managing advertising campaigns on connected displays, starting with tennis ball vending machines.
